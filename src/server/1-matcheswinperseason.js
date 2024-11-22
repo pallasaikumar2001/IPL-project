@@ -1,14 +1,14 @@
 // 1 Number of matches played per year for all the years in IPL.
 
-const csvToJson = require("../utilities")
+const csvToJson = require("../convert")
 const fs = require("fs")
 
 const matchesPath = "../data/matches.csv";
 function matchesPerYear(path) {
     
-    csvToJson(path).then((data) => {
+    csvToJson(path).then((matchesdata) => {
       
-        const matches = data.reduce((acc, element) => {
+        const matches = matchesdata.reduce((acc, element) => {
             if (!acc[element.season]) {
                 acc[element.season] = 0;
             }
@@ -19,10 +19,10 @@ function matchesPerYear(path) {
         console.log(matches)
         fs.writeFile("../public/output/1-matchesPerYear.json",JSON.stringify(matches),(err) => {
             if (err) {
-               console.log(err);
+                console.log(err);
             } 
             else {
-               console.log("Data Updated successfully");
+                console.log("Data Updated successfully");
             }
           }
         );

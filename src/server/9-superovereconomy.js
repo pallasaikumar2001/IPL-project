@@ -1,37 +1,43 @@
-// 9 Find the bowler with the best economy in super overs
-
-const csvToJson = require("../utilities"); 
+const csvToJson = require("../convert");
 const fs = require("fs");
 
 const deliveriesPath = "../data/deliveries.csv";
-function supereconomy(deliveriesPath){
-    csvToJson(deliveriesPath).then((deliveriesData)=>{
+
+function supereconomy(deliveriesPath) {
+    csvToJson(deliveriesPath).then((deliveriesData) => {
         const players = deliveriesData.reduce((acc, delivery) => {
             if (delivery.is_super_over !== '0') {
                 if (!acc[delivery.bowler]) {
-                    acc[delivery.bowler] = 0;
+                    acc[delivery.bowler] = { runs: 0, balls: 0 };
                 }
-                acc[delivery.bowler] += 1;
+                acc[delivery.bowler].runs += parseInt(delivery.total_runs, 10);
+                acc[delivery.bowler].balls += 1;
             }
             return acc;
         }, {});
-        
-        // console.log(players)
-        entries = Object.entries(players); 
-        entries.sort((a, b) => a[1] - b[1]);
-        const bowlername = entries[0]; 
-        const final={}
-        final[bowlername[0]]=bowlername[1]
 
-        console.log(final);
-        fs.writeFile("../public/output/9-superovereconomy.json", JSON.stringify(final, null, 2), (err) => {
+        const economies = Object.entries(players).map(([bowler, data]) => {
+            const overs = data.balls / 6;
+            const economyRate = data.runs / overs;
+            return { bowler, economyRate };
+        });
+
+        economies.sort((a, b) => a.economyRate - b.economyRate);
+        const bestBowler = economies[0];
+        console.log(economies)
+
+        console.log(bestBowler);
+
+        fs.writeFile("../public/output/9-superovereconomy.json", JSON.stringify(bestBowler, null, 2), (err) => {
             if (err) {
                 console.error('Error writing JSON to file:', err);
-            } 
-            else {
+            } else {
                 console.log("Data updated successfully");
             }
         });
-    })
+    }).catch((err) => {
+        console.error('Error reading deliveries data:', err);
+    });
 }
-supereconomy(deliveriesPath)
+
+supereconomy(deliveriesPath);

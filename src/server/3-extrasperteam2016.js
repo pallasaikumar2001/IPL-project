@@ -1,4 +1,4 @@
-const csvToJson = require("../utilities"); 
+const csvToJson = require("../convert"); 
 const fs = require("fs");
 
 const deliveriesPath = "../data/deliveries.csv";
